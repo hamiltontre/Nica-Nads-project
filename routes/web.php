@@ -3,8 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AtletaController;
+use App\Http\Controllers\AsistenciaController;
 
-// Ruta única de autenticación
+// Autenticación
 Route::match(['get', 'post'], '/login', [AuthController::class, 'handleAuth'])->name('login');
 
 // Grupo de rutas protegidas
@@ -14,26 +15,17 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('atletas.index');
     });
     
-    // Gestión de atletas
     Route::resource('atletas', AtletaController::class);
     
-    // Grupos de entrenamiento
-    Route::prefix('grupos')->group(function () {
-        Route::view('/federados', 'grupos.federados')->name('grupos.federados');
-        Route::view('/novatos', 'grupos.novatos')->name('grupos.novatos');
-        Route::view('/juniors', 'grupos.juniors')->name('grupos.juniors');
-        Route::view('/principiantes', 'grupos.principiantes')->name('grupos.principiantes');
-    });
+Route::get('/atletas/por-grupo/{grupo}', [AtletaController::class, 'porGrupo'])
+    ->name('atletas.porGrupo')
+    ->where('grupo', 'Federados|Novatos|Juniors|Principiantes');
 
-// Rutas para las nuevas secciones
-    Route::get('/facturas', function () {
-        return view('facturas.index');
-    })->name('facturas.index');
+Route::resource('facturas', \App\Http\Controllers\FacturaController::class)
+    ->middleware('auth'); // Opcional: proteger con autenticación
 
-    Route::get('/asistencias', function () {
-        return view('asistencias.index');
-    })->name('asistencias.index');
     
-});
-
- 
+Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
+Route::post('/asistencias', [AsistenciaController::class, 'store'])->name('asistencias.store');
+Route::post('/asistencias/cerrar', [AsistenciaController::class, 'cerrarMes'])->name('asistencias.cerrar');
+ });
