@@ -1,4 +1,4 @@
-@extends('layouts.auth') <!-- Usando el nuevo layout -->
+@extends('layouts.auth') 
 
 @section('content')
 <div class="mb-4">
