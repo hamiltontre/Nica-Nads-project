@@ -14,14 +14,18 @@ class AtletaController extends Controller
      */
     public function index()
     {
-        // Ordenamos por grupo y nombre para mejor visualización
-        $atletas = Atleta::orderBy('grupo')
-                         ->orderBy('nombre')
-                         ->get();
+        $grupos = ['Federados', 'Novatos', 'Juniors', 'Principiantes'];
         
-        return view('atletas.index', compact('atletas'));
+        // Pre-cargamos todos los grupos
+        $atletasPorGrupo = [];
+        foreach ($grupos as $grupo) {
+            $atletasPorGrupo[$grupo] = Atleta::where('grupo', $grupo)
+                                            ->orderBy('nombre')
+                                            ->paginate(12, ['*'], "page_{$grupo}");
+        }
+        
+        return view('atletas.index', compact('grupos', 'atletasPorGrupo'));
     }
-
     /**
      * Muestra el formulario para crear un nuevo atleta
      */
@@ -35,32 +39,34 @@ class AtletaController extends Controller
      * Almacena un nuevo atleta en la base de datos
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:100',
-            'apellido' => 'required|string|max:100',
-            'edad' => 'required|integer|min:5|max:99',
-            'grupo' => 'required|in:Federados,Novatos,Juniors,Principiantes',
-            'becado' => 'boolean',
-            'foto' => 'nullable|image|max:2048' // Máximo 2MB
-        ]);
+{
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:100',
+        'apellido' => 'required|string|max:100',
+        'edad' => 'required|integer|min:5|max:99',
+        'grupo' => 'required|in:Federados,Novatos,Juniors,Principiantes',
+        'becado' => 'boolean',
+        'foto' => 'nullable|image|max:2048' // Máximo 2MB
+    ]);
 
-        // Guardar la foto si existe
-        if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('public/fotos');
-            $validated['foto'] = str_replace('public/', '', $path);
-        }
-        // Asignar el usuario autenticado como creador
-        $validated['user_id'] = Auth::user()->id;
-
-        Atleta::create($validated);
-
-        return redirect()->route('atletas.index')
-                         ->with('success', 'Atleta creado correctamente');
+    // Guardar la foto si existe
+    if ($request->hasFile('foto')) {
+        $path = $request->file('foto')->store('fotos', 'public'); // Almacena en storage/app/public/fotos
+        $validated['foto'] = $path; // Guardamos solo el path relativo
+    } else {
+        $validated['foto'] = null; // Aseguramos que sea null si no hay foto
     }
 
+    // Asignar el usuario autenticado como creador
+    $validated['user_id'] = Auth::user()->id;
 
-     public function show(string $id)
+    Atleta::create($validated);
+
+    return redirect()->route('atletas.index')
+                     ->with('success', 'Atleta creado correctamente');
+}
+
+    public function show(string $id)
     {
         //
     }
@@ -88,5 +94,4 @@ class AtletaController extends Controller
     {
         //
     }
-    
 }
