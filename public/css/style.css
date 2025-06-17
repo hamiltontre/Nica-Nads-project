@@ -1,0 +1,125 @@
+/* Variables */
+:root {
+    --primary-bg: #000000;
+    --text-color: #e7e7e7;
+    --accent-color: #a7a7a7;
+}
+
+/* Reset y Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    min-height: 100vh;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+/* Efectos Visuales */
+.image-gradient {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0.5;
+    z-index: -1;
+    max-width: 100%;
+    height: auto;
+}
+
+.layer-blur {
+    height: 0;
+    width: 30rem;
+    position: absolute;
+    top: 20%;
+    right: 0;
+    box-shadow: 0 0 700px 15px white;
+    rotate: -30deg;
+    z-index: -1;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5rem;
+    z-index: 999;
+    position: relative;
+}
+
+.logo {
+    font-size: 3rem;
+    font-weight: 300;
+    margin: 0;
+    color: white;
+}
+
+.nav-list {
+    display: flex;
+    gap: 3rem;
+    list-style: none;
+}
+
+.nav-list a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.1rem;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-list a:hover {
+    color: var(--accent-color);
+}
+
+/* Contenido Principal */
+.main-container {
+    position: relative;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    padding: 2rem 5rem;
+}
+
+/* Override Bootstrap */
+.nav-tabs .nav-link {
+    color: var(--text-color);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--primary-bg);
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.card {
+    background-color: rgba(30, 30, 30, 0.8);
+    color: var(--text-color);
+    border: 1px solid #333;
+}
+
+/* Botones Personalizados */
+.btn-signing {
+    background-color: var(--accent-color);
+    color: var(--primary-bg);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-signing:hover {
+    background-color: white;
+    transform: translateY(-2px);
+}
