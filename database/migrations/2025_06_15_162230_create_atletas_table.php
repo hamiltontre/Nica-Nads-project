@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('apellido');
-            $table->integer('edad');
+            $table->date('fecha_nacimiento'); // en lugar de $table->integer('edad');
             $table->boolean('becado')->default(false);
             $table->enum('grupo', ['Federados', 'Novatos', 'Juniors', 'Principiantes']);
             $table->string('foto')->nullable(); 

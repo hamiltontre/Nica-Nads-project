@@ -37,16 +37,19 @@
                             </div>
                         </div>
 
+                        {{-- Fecha de nacimiento y grupo --}}
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="edad" class="form-label">Edad</label>
-                                <input type="number" class="form-control @error('edad') is-invalid @enderror" 
-                                       id="edad" name="edad" value="{{ old('edad') }}" min="5" max="99" required>
-                                @error('edad')
+                                <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                                <input type="date" class="form-control @error('fecha_nacimiento') is-invalid @enderror" 
+                                       id="fecha_nacimiento" name="fecha_nacimiento" 
+                                       value="{{ old('fecha_nacimiento') }}" 
+                                       max="{{ now()->toDateString() }}" required>
+                                @error('fecha_nacimiento')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label for="grupo" class="form-label">Grupo</label>
                                 <select class="form-select @error('grupo') is-invalid @enderror" 
@@ -64,16 +67,8 @@
                             </div>
                         </div>
 
+                        {{-- Foto y becado --}}
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Becado</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" 
-                                           id="becado" name="becado" value="1" {{ old('becado') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="becado">¿Es becado?</label>
-                                </div>
-                            </div>
-                            
                             <div class="col-md-6">
                                 <label for="foto" class="form-label">Foto del Atleta</label>
                                 <input type="file" class="form-control @error('foto') is-invalid @enderror" 
@@ -83,24 +78,34 @@
                                 @enderror
                                 <small class="text-muted">Máximo 2MB (opcional)</small>
                             </div>
+
+                            <div class="col-md-6 d-flex align-items-center pt-2">
+                                <div>
+                                    <label class="form-label d-block">Becado</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="becado" name="becado" value="1" {{ old('becado') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="becado">¿Es becado?</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
+                        {{-- Vista previa --}}
                         <div class="row mb-3">
-    <div class="col-12">
-        <div class="preview-container text-center mt-3">
-            <div id="noFotoPreview" class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" 
-                 style="width: 200px; height: 200px;">
-                <i class="bi bi-person text-muted" style="font-size: 5rem;"></i>
-            </div>
-            <img id="previewImage" src="#" alt="Vista previa de la foto" 
-                 class="img-thumbnail d-none" style="max-width: 200px; max-height: 200px;">
-        </div>
-    </div>
-</div>
+                            <div class="col-12">
+                                <div class="preview-container text-center mt-3">
+                                    <div id="noFotoPreview" class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                         style="width: 200px; height: 200px;">
+                                        <i class="bi bi-person text-muted" style="font-size: 5rem;"></i>
+                                    </div>
+                                    <img id="previewImage" src="#" alt="Vista previa de la foto" 
+                                         class="img-thumbnail d-none" style="max-width: 200px; max-height: 200px;">
+                                </div>
+                            </div>
+                        </div>
 
-
-
- <div class="d-flex justify-content-between mt-4">
+                        <div class="d-flex justify-content-between mt-4">
                             <a href="{{ route('atletas.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Cancelar
                             </a>
@@ -108,6 +113,12 @@
                                 <i class="bi bi-save me-1"></i> Guardar Atleta
                             </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>
@@ -133,11 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
 </script>
 @endpush
 
 @endsection
-
-

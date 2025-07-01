@@ -3,16 +3,25 @@
 @section('title', 'Gestión de Atletas')
 
 @section('content')
-<div class="container py-4">
+<link rel="stylesheet" href="{{ mix('css/atletas.css') }}">
+
+@php
+    $totalAtletas = 0;
+    foreach ($atletasPorGrupo as $grupoAtletas) {
+        $totalAtletas += $grupoAtletas->total();
+    }
+@endphp
+
+<div class="container py-4 px-2">
     <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs mb-4" id="atletasTabs" role="tablist">
+    <ul class="nav nav-tabs mb-3 px-2" id="atletasTabs" role="tablist">
         @foreach($grupos as $grupo)
         <li class="nav-item" role="presentation">
-            <button class="nav-link {{ $loop->first ? 'active' : '' }}" 
-                    id="{{ strtolower($grupo) }}-tab" 
-                    data-bs-toggle="tab" 
-                    data-bs-target="#{{ strtolower($grupo) }}" 
-                    type="button" 
+            <button class="nav-link {{ $loop->first ? 'active' : '' }}"
+                    id="{{ Str::slug($grupo) }}-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#{{ Str::slug($grupo) }}"
+                    type="button"
                     role="tab">
                 <i class="bi 
                     @if($grupo == 'Federados') bi-award-fill
@@ -20,7 +29,7 @@
                     @elseif($grupo == 'Juniors') bi-emoji-smile-fill
                     @else bi-person-fill-add
                     @endif
-                    me-1"></i> 
+                    me-1"></i>
                 {{ $grupo }}
             </button>
         </li>
@@ -28,92 +37,95 @@
     </ul>
 
     <!-- Botón para agregar nuevo atleta -->
-    <div class="d-flex justify-content-end mb-4">
+    <div class="d-flex justify-content-between mb-4 px-2">
+        
         <a href="{{ route('atletas.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Nuevo Atleta
+            <i class="bi bi-plus-circle me-1"></i> Nuevo Atleta
         </a>
     </div>
 
     <!-- Tabs Content -->
-    <div class="tab-content" id="atletasTabsContent">
+    <div class="tab-content px-1" id="atletasTabsContent">
         @foreach($grupos as $grupo)
-        <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" 
-             id="{{ strtolower($grupo) }}" 
+        <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
+             id="{{ Str::slug($grupo) }}"
              role="tabpanel">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+             
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
                 @forelse($atletasPorGrupo[$grupo] as $atleta)
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm atleta-card">
                         <div class="card-body">
-                            <div class="d-flex align-items-start mb-3">
-                                <!-- Foto del atleta -->
-                                <div class="flex-shrink-0 me-3">
+                            <div class="d-flex align-items-start">
+                                <div class="img-hover-container me-3">
                                     @if($atleta->foto)
-                                        <img src="{{ asset('storage/'.$atleta->foto) }}" 
-                                             alt="Foto de {{ $atleta->nombre }}" 
-                                             class="rounded-circle" 
-                                             width="70" 
-                                             height="70">
+                                        <img src="{{ asset('storage/'.$atleta->foto) }}"
+                                             alt="Foto de {{ $atleta->nombre }}"
+                                             class="atleta-foto"
+                                             title="{{ $atleta->nombre }} {{ $atleta->apellido }}">
                                     @else
-                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                             style="width: 70px; height: 70px;">
-                                            <i class="bi bi-person" style="font-size: 1.8rem;"></i>
+                                        <div class="foto-placeholder">
+                                            <i class="bi bi-person"></i>
                                         </div>
                                     @endif
                                 </div>
                                 <div class="flex-grow-1">
                                     <h5 class="card-title mb-1">{{ $atleta->nombre }} {{ $atleta->apellido }}</h5>
-                                    <p class="text-muted mb-2">{{ $atleta->edad }} años</p>
+                                    <p class="text-muted small mb-1">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        {{ date('d/m/Y', strtotime($atleta->fecha_nacimiento)) }}
+                                        ({{ \Carbon\Carbon::parse($atleta->fecha_nacimiento)->age }} años)
+                                    </p>
                                     
-                                    <span class="badge 
-                                        @if($atleta->grupo == 'Federados') bg-primary
-                                        @elseif($atleta->grupo == 'Novatos') bg-success
-                                        @elseif($atleta->grupo == 'Juniors') bg-warning text-dark
-                                        @else bg-info text-dark
+                                    <span class="badge badge-grupo 
+                                        @if($atleta->grupo == 'Federados') badge-federados
+                                        @elseif($atleta->grupo == 'Novatos') badge-novatos
+                                        @elseif($atleta->grupo == 'Juniors') badge-juniors
+                                        @else badge-otros
                                         @endif mb-2">
                                         {{ $atleta->grupo }}
                                     </span>
-                                    
-                                    <div class="mb-2">
-                                        @if($atleta->becado)
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-award"></i> Becado
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary">
-                                                No becado
-                                            </span>
-                                        @endif
-                                    </div>
+
+                                    @if($atleta->becado)
+                                        <span class="badge bg-success bg-opacity-10 text-success small mb-2">
+                                            <i class="bi bi-award me-1"></i> Becado
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
 
-                            <div class="border-top pt-3">
-                                <div class="row text-center">
-                                    <div class="col-4">
-                                        <h6 class="mb-1">Promedio</h6>
-                                        <span class="badge bg-light text-dark fs-6">--%</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <h6 class="mb-1">Asistencias</h6>
-                                        <span class="badge bg-light text-dark fs-6">--</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <h6 class="mb-1">Inasistencias</h6>
-                                        <span class="badge bg-light text-dark fs-6">--</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="stats-container mt-3">
+    <div class="row text-center">
+        <div class="col-6 stat-item">
+            <h6 class="mb-1">Asistencia</h6>
+            <span class="stat-value">
+                {{ $atleta->asistencias->where('estado', 'presente')->count() }}/{{ $atleta->asistencias->count() }}
+            </span>
+        </div>
+        <div class="col-6 stat-item">
+            <h6 class="mb-1">Inasis.</h6>
+            <span class="stat-value text-danger">
+                {{ $atleta->asistencias->where('estado', 'ausente')->count() }}
+            </span>
+        </div>
+    </div>
+</div>
+
                         </div>
-                        <div class="card-footer bg-transparent">
+                        <div class="card-footer bg-transparent py-2">
                             <div class="d-flex justify-content-end">
-                                <a href="{{ route('atletas.edit', $atleta->id) }}" class="btn btn-sm btn-outline-primary me-2">
+                                <a href="{{ route('atletas.edit', $atleta->id) }}" 
+                                   class="btn btn-sm btn-outline-primary me-2"
+                                   title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <form action="{{ route('atletas.destroy', $atleta->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este atleta?')">
+                                    <button type="submit" 
+                                            class="btn btn-sm btn-outline-danger" 
+                                            onclick="return confirm('¿Estás seguro de eliminar este atleta?')"
+                                            title="Eliminar">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -123,16 +135,17 @@
                 </div>
                 @empty
                 <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-people-fill fs-1"></i>
+                    <div class="alert alert-info text-center py-4">
+                        <i class="bi bi-people-fill fs-1 text-primary"></i>
                         <h4 class="mt-3">No hay atletas en este grupo</h4>
+                        <p class="mb-0">Puedes agregar nuevos atletas haciendo clic en el botón "Nuevo Atleta"</p>
                     </div>
                 </div>
                 @endforelse
             </div>
 
             @if($atletasPorGrupo[$grupo]->hasPages())
-            <div class="mt-4">
+            <div class="mt-4 d-flex justify-content-center">
                 {{ $atletasPorGrupo[$grupo]->appends(['page_' . $grupo => request()->input('page_' . $grupo)])->onEachSide(1)->links() }}
             </div>
             @endif
@@ -140,4 +153,40 @@
         @endforeach
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.atleta-card');
+    
+    cards.forEach(card => {
+        const foto = card.querySelector('.atleta-foto');
+        if (!foto) return;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'imagen-overlay';
+        const imgAmpliada = document.createElement('img');
+        imgAmpliada.src = foto.src;
+        overlay.appendChild(imgAmpliada);
+        card.appendChild(overlay);
+
+        foto.addEventListener('click', function(e) {
+            e.stopPropagation();
+            overlay.classList.add('mostrar');
+        });
+
+        overlay.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.remove('mostrar');
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.imagen-overlay') && !e.target.closest('.atleta-foto')) {
+            document.querySelectorAll('.imagen-overlay').forEach(overlay => {
+                overlay.classList.remove('mostrar');
+            });
+        }
+    });
+});
+</script>
 @endsection

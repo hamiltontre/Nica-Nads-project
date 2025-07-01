@@ -1,0 +1,179 @@
+/* Estilos mejorados para tarjetas de atletas */
+.atleta-card {
+    min-height: 320px;
+    width: 100%;
+    /* Opciones de ancho progresivas (descomentar la deseada) */
+    /* max-width: 400px;  Opción estándar */
+    max-width: 350px; /* Opción ancha (recomendada) */
+    /* max-width: 450px;  Opción extra ancha */
+    /* max-width: 480px;  Opción máxima */
+    margin: 0 auto;
+    transition: all 0.3s ease;
+    background: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+/* Overlay para la imagen ampliada */
+.imagen-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.imagen-overlay.mostrar {
+    opacity: 1;
+    visibility: visible;
+}
+
+.imagen-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 4px;
+    object-fit: contain;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.6);
+}
+
+.atleta-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.img-hover-container {
+    width: 100px;
+    height: 100px;
+    margin-right: 15px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.atleta-foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    image-rendering: crisp-edges;
+}
+
+.foto-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #34495e;
+    color: #bdc3c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+/* Ajustes para el texto de fecha/edad */
+.text-muted.small {
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    display: inline-block;
+    max-width: 100%;
+    color: #ecf0f1 !important;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    padding-right: 10px;
+}
+
+/* Ajustes para el contenedor de información */
+.flex-grow-1 {
+    min-width: 200px;
+    overflow: hidden;
+}
+
+.stats-container {
+    background: rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: block;
+}
+
+/* Asistencia en verde */
+.stat-item:nth-child(2) .stat-value {
+    color: #2ecc71;
+}
+
+/* Inasistencias en rojo */
+.stat-item:nth-child(3) .stat-value {
+    color: #e74c3c;
+}
+
+/* Promedio en amarillo */
+.stat-item:nth-child(1) .stat-value {
+    color: #f39c12;
+}
+
+/* Colores específicos para badges */
+.badge-federados { background: #3498db; }
+.badge-novatos { background: #2ecc71; }
+.badge-juniors { background: #f39c12; color: #212529; }
+.badge-otros { background: #9b59b6; }
+
+/* Efecto hover para foto */
+.atleta-foto:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    
+    .atleta-card {
+        min-height: 300px;
+        max-width: 100%;
+    }
+    
+    .text-muted.small {
+        white-space: normal;
+        overflow: visible;
+    }
+}

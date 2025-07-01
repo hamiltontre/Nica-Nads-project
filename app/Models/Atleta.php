@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Atleta extends Model
 {
@@ -12,7 +13,7 @@ class Atleta extends Model
     protected $fillable = [
         'nombre',
         'apellido',
-        'edad',
+        'fecha_nacimiento',
         'becado',
         'grupo',
         'foto',
@@ -40,4 +41,9 @@ class Atleta extends Model
             ->where('estado', 'asistio')
             ->count();
     }
+
+    public function getEdadAttribute()
+{
+    return Carbon::parse($this->fecha_nacimiento)->age;
+}
 }
