@@ -15,7 +15,7 @@
                 <!-- Filtros -->
                 <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
                     <form method="GET" class="d-flex flex-wrap gap-2">
-                        <!-- Grupo -->
+                        <!-- Dropdown para seleccionar grupo -->
                         <div class="dropdown">
                             <button class="btn btn-light dropdown-toggle" type="button" 
                                     id="historicoGrupoDropdown" data-bs-toggle="dropdown">
@@ -38,7 +38,7 @@
                             </ul>
                         </div>
                         
-                        <!-- Turno (solo para Federados) -->
+                        <!-- Dropdown para seleccionar turno (solo para Federados) -->
                         @if($grupoSeleccionado === 'Federados')
                         <div class="dropdown">
                             <button class="btn btn-light dropdown-toggle" type="button" 
@@ -72,7 +72,7 @@
                         </div>
                         @endif
                         
-                        <!-- Mes -->
+                        <!-- Selector de mes -->
                         <select name="mes" class="form-select" onchange="this.form.submit()">
                             @foreach($meses as $key => $nombre)
                             <option value="{{ $key }}" {{ $mes == $key ? 'selected' : '' }}>
@@ -81,7 +81,7 @@
                             @endforeach
                         </select>
                         
-                        <!-- Año -->
+                        <!-- Selector de año -->
                         <select name="anio" class="form-select" onchange="this.form.submit()">
                             @foreach($anios as $anioOption)
                             <option value="{{ $anioOption }}" {{ $anio == $anioOption ? 'selected' : '' }}>
@@ -94,9 +94,9 @@
             </div>
         </div>
         
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
+        <!-- Tabla de asistencias históricas -->
+       <div class="table-responsive" style="overflow-x: auto; overflow-y: auto; max-height: 70vh;">
+    <table class="table table-bordered table-hover">
                     <colgroup>
                         <col style="width: 300px; min-width: 200px;">
                     </colgroup>
@@ -104,7 +104,7 @@
                         <tr>
                             <th style="position: sticky; left: 0; z-index: 10;">Atleta</th>
                             @foreach($diasMes as $dia)
-                            <th class="text-center {{ $dia['es_domingo'] ? 'bg-secondary' : '' }}" 
+                            <th class="text-center {{ $dia['es_domingo'] || $dia['es_dia_inhabil'] ? 'bg-secondary' : '' }}" 
                                 title="{{ $dia['dia_semana'] }} {{ $dia['dia'] }}">
                                 <span class="d-block d-md-none">{{ substr($dia['dia_semana'], 0, 1) }}</span>
                                 <span class="d-none d-md-block">{{ $dia['dia_semana'] }}</span>
@@ -119,12 +119,14 @@
                     <tbody>
                         @foreach($atletas as $atleta)
                         @php
+                            // Cálculo de totales para cada atleta
                             $totalPresente = 0;
                             $totalAusente = 0;
+                            $totalJustificado = 0;
                             $totalDias = 0;
                             
                             foreach($diasMes as $dia) {
-                                if(!$dia['es_domingo']) {
+                                if(!$dia['es_domingo'] && !$dia['es_dia_inhabil']) {
                                     $totalDias++;
                                     $asistenciaManana = $asistencias[$atleta->id][$dia['fecha']]['mañana'][0] ?? null;
                                     $asistenciaTarde = $asistencias[$atleta->id][$dia['fecha']]['tarde'][0] ?? null;
@@ -133,52 +135,37 @@
                                     if($asistenciaTarde && $asistenciaTarde->estado == 'presente') $totalPresente++;
                                     if($asistenciaManana && $asistenciaManana->estado == 'ausente') $totalAusente++;
                                     if($asistenciaTarde && $asistenciaTarde->estado == 'ausente') $totalAusente++;
+                                    if($asistenciaManana && $asistenciaManana->estado == 'justificado') $totalJustificado++;
+                                    if($asistenciaTarde && $asistenciaTarde->estado == 'justificado') $totalJustificado++;
                                 }
                             }
                         @endphp
                         <tr>
-                            <td style="position: sticky; left: 0; background: white; z-index: 5;">
+                            <!-- Columna del nombre del atleta -->
+                            <td style="position: sticky; left: 0; background: white; z-index: 10;">
                                 <div class="d-flex align-items-center">
-                                    @if($atleta->foto)
-                                    <img src="{{ asset('storage/'.$atleta->foto) }}" 
-                                         alt="{{ $atleta->nombre }}" 
-                                         class="rounded-circle me-2" 
-                                         width="40" height="40">
-                                    @else
-                                    <div class="rounded-circle bg-light text-center me-2" 
-                                         style="width:40px;height:40px;line-height:40px;">
-                                        <i class="bi bi-person text-muted"></i>
-                                    </div>
-                                    @endif
                                     <div>
                                         <strong class="atleta-nombre">{{ $atleta->nombre }} {{ $atleta->apellido }}</strong>
-                                        <div class="small">
-                                            <span class="badge 
-                                                @if($atleta->grupo == 'Federados') badge-federados
-                                                @elseif($atleta->grupo == 'Novatos') badge-novatos
-                                                @elseif($atleta->grupo == 'Juniors') badge-juniors
-                                                @else badge-otros
-                                                @endif">
-                                                {{ $atleta->grupo }}
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
                             </td>
                             
+                            <!-- Celdas de asistencia por día -->
                             @foreach($diasMes as $dia)
                             @php
                                 $asistencia = $asistencias[$atleta->id][$dia['fecha']][$turno][0] ?? null;
                                 $estado = $asistencia->estado ?? null;
-                                $esDomingo = $dia['es_domingo'];
+                                $esDiaInhabil = $dia['es_domingo'] || $dia['es_dia_inhabil'];
                             @endphp
-                            <td class="text-center align-middle {{ $esDomingo ? 'bg-light' : '' }}"
+                            <td class="text-center align-middle {{ $esDiaInhabil ? 'bg-light' : '' }}"
                                 title="{{ $dia['dia_semana'] }} {{ $dia['dia'] }}">
-                                @if(!$esDomingo && $estado)
+                                @if(!$esDiaInhabil && $estado)
                                     @if($estado == 'presente')
                                     <i class="bi bi-check-circle-fill text-success fs-5"></i>
                                     @elseif($estado == 'ausente')
                                     <i class="bi bi-x-circle-fill text-danger fs-5"></i>
+                                    @elseif($estado == 'justificado')
+                                    <i class="bi bi-exclamation-circle-fill text-warning fs-5"></i>
                                     @else
                                     <i class="bi bi-circle text-muted fs-5"></i>
                                     @endif
@@ -186,16 +173,18 @@
                             </td>
                             @endforeach
                             
+                            <!-- Columna de totales -->
                             <td class="text-center align-middle bg-light" 
                                 style="position: sticky; right: 0; background: #f8f9fa!important;">
                                 <span class="badge bg-success">{{ $totalPresente }}</span>
                                 <span class="badge bg-danger">{{ $totalAusente }}</span>
+                                <span class="badge bg-warning">{{ $totalJustificado }}</span>
                                 <div class="small mt-1">
-                                    @if($totalDias > 0)
-                                    {{ round(($totalPresente / ($totalDias * ($atleta->grupo == 'Federados' ? 2 : 1))) * 100) }}%
-                                    @else
-                                    0%
-                                    @endif
+                                    @php
+                                        $totalDiasHabiles = $totalDias * ($atleta->grupo == 'Federados' ? 2 : 1);
+                                        $porcentaje = $totalDiasHabiles > 0 ? round(($totalPresente / $totalDiasHabiles) * 100) : 0;
+                                    @endphp
+                                    {{ $porcentaje }}%
                                 </div>
                             </td>
                         </tr>
