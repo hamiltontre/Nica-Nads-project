@@ -5,15 +5,8 @@
 @section('content')
 <link rel="stylesheet" href="{{ mix('css/atletas.css') }}">
 
-@php
-    $totalAtletas = 0;
-    foreach ($atletasPorGrupo as $grupoAtletas) {
-        $totalAtletas += $grupoAtletas->total();
-    }
-@endphp
-
 <div class="container py-4 px-2">
-    <!-- Tabs Navigation -->
+    <!-- Tabs de navegación -->
     <ul class="nav nav-tabs mb-3 px-2" id="atletasTabs" role="tablist">
         @foreach($grupos as $grupo)
         <li class="nav-item" role="presentation">
@@ -22,132 +15,39 @@
                     data-bs-toggle="tab"
                     data-bs-target="#{{ Str::slug($grupo) }}"
                     type="button"
-                    role="tab">
-                <i class="bi 
-                    @if($grupo == 'Federados') bi-award-fill
-                    @elseif($grupo == 'Novatos') bi-star-fill
-                    @elseif($grupo == 'Juniors') bi-emoji-smile-fill
-                    @else bi-person-fill-add
-                    @endif
-                    me-1"></i>
+                    role="tab"
+                    data-grupo="{{ $grupo }}">
                 {{ $grupo }}
             </button>
         </li>
         @endforeach
     </ul>
 
-    <!-- Botón para agregar nuevo atleta -->
-    <div class="d-flex justify-content-between mb-4 px-2">
-        
+    <div class="d-flex justify-content-end mb-4">
         <a href="{{ route('atletas.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Nuevo Atleta
+            <i class="bi bi-plus-circle"></i> Nuevo Atleta
         </a>
     </div>
 
-    <!-- Tabs Content -->
     <div class="tab-content px-1" id="atletasTabsContent">
         @foreach($grupos as $grupo)
         <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
              id="{{ Str::slug($grupo) }}"
              role="tabpanel">
-             
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-                @forelse($atletasPorGrupo[$grupo] as $atleta)
-                <div class="col">
-                    <div class="card h-100 shadow-sm atleta-card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-start">
-                                <div class="img-hover-container me-3">
-                                    @if($atleta->foto)
-                                        <img src="{{ asset('storage/'.$atleta->foto) }}"
-                                             alt="Foto de {{ $atleta->nombre }}"
-                                             class="atleta-foto"
-                                             title="{{ $atleta->nombre }} {{ $atleta->apellido }}">
-                                    @else
-                                        <div class="foto-placeholder">
-                                            <i class="bi bi-person"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title mb-1">{{ $atleta->nombre }} {{ $atleta->apellido }}</h5>
-                                    <p class="text-muted small mb-1">
-                                        <i class="bi bi-calendar me-1"></i>
-                                        {{ date('d/m/Y', strtotime($atleta->fecha_nacimiento)) }}
-                                        ({{ \Carbon\Carbon::parse($atleta->fecha_nacimiento)->age }} años)
-                                    </p>
-                                    
-                                    <span class="badge badge-grupo 
-                                        @if($atleta->grupo == 'Federados') badge-federados
-                                        @elseif($atleta->grupo == 'Novatos') badge-novatos
-                                        @elseif($atleta->grupo == 'Juniors') badge-juniors
-                                        @else badge-otros
-                                        @endif mb-2">
-                                        {{ $atleta->grupo }}
-                                    </span>
-
-                                    @if($atleta->becado)
-                                        <span class="badge bg-success bg-opacity-10 text-success small mb-2">
-                                            <i class="bi bi-award me-1"></i> Becado
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="stats-container mt-3">
-    <div class="row text-center">
-        <div class="col-6 stat-item">
-            <h6 class="mb-1">Asistencia</h6>
-            <span class="stat-value">
-                {{ $atleta->asistencias->where('estado', 'presente')->count() }}/{{ $atleta->asistencias->count() }}
-            </span>
-        </div>
-        <div class="col-6 stat-item">
-            <h6 class="mb-1">Inasis.</h6>
-            <span class="stat-value text-danger">
-                {{ $atleta->asistencias->where('estado', 'ausente')->count() }}
-            </span>
-        </div>
-    </div>
-</div>
-
-                        </div>
-                        <div class="card-footer bg-transparent py-2">
-                            <div class="d-flex justify-content-end">
-                                <a href="{{ route('atletas.edit', $atleta->id) }}" 
-                                   class="btn btn-sm btn-outline-primary me-2"
-                                   title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form action="{{ route('atletas.destroy', $atleta->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="btn btn-sm btn-outline-danger" 
-                                            onclick="return confirm('¿Estás seguro de eliminar este atleta?')"
-                                            title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+            @if($loop->first)
+                <div class="atletas-grid-container">
+                    <div class="atletas-grid">
+                        @include('atletas._atletas_list', [
+                            'atletas' => $atletasPorGrupo[$grupo],
+                            'diasHabiles' => $diasHabiles
+                        ])
                     </div>
                 </div>
-                @empty
-                <div class="col-12">
-                    <div class="alert alert-info text-center py-4">
-                        <i class="bi bi-people-fill fs-1 text-primary"></i>
-                        <h4 class="mt-3">No hay atletas en este grupo</h4>
-                        <p class="mb-0">Puedes agregar nuevos atletas haciendo clic en el botón "Nuevo Atleta"</p>
-                    </div>
+            @else
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Cargando atletas...</p>
                 </div>
-                @endforelse
-            </div>
-
-            @if($atletasPorGrupo[$grupo]->hasPages())
-            <div class="mt-4 d-flex justify-content-center">
-                {{ $atletasPorGrupo[$grupo]->appends(['page_' . $grupo => request()->input('page_' . $grupo)])->onEachSide(1)->links() }}
-            </div>
             @endif
         </div>
         @endforeach
@@ -155,31 +55,165 @@
 </div>
 
 <script>
+// Objeto para cache de grupos ya cargados
+const gruposCargados = {};
+
 document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.atleta-card');
+    const tabs = document.querySelectorAll('#atletasTabs .nav-link');
     
-    cards.forEach(card => {
+    // Configurar evento para cada tab
+    tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            const grupo = e.target.getAttribute('data-grupo');
+            const target = e.target.getAttribute('data-bs-target');
+            const tabContent = document.querySelector(target);
+            
+            // Solo cargar si no está en cache
+            if (!gruposCargados[grupo]) {
+                cargarAtletas(grupo);
+            }
+        });
+    });
+    
+    // Inicializar funcionalidad de zoom para el primer grupo
+    initImageZoom();
+});
+
+function cargarAtletas(grupo) {
+    const tabContent = document.querySelector(`#${grupo.toLowerCase()}`);
+    const url = "{{ route('atletas.byGrupo', ['grupo' => 'GRUPO_PLACEHOLDER']) }}".replace('GRUPO_PLACEHOLDER', grupo);
+    
+    // Mostrar loader
+    tabContent.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Cargando atletas...</p>
+        </div>
+    `;
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            // Actualizar contenido
+            tabContent.innerHTML = `
+                <div class="atletas-grid-container">
+                    <div class="atletas-grid">
+                        ${data.html}
+                    </div>
+                </div>
+            `;
+            
+            // Marcar grupo como cargado
+            gruposCargados[grupo] = true;
+            
+            // Configurar eventos de paginación
+            configurarPaginacion(grupo);
+            
+            // Inicializar zoom para las nuevas imágenes
+            initImageZoom();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tabContent.innerHTML = `
+                <div class="alert alert-danger">
+                    Error al cargar atletas: ${error.message}
+                    <button onclick="cargarAtletas('${grupo}')" class="btn btn-sm btn-primary ms-2">Reintentar</button>
+                </div>
+            `;
+        });
+}
+
+function configurarPaginacion(grupo) {
+    document.querySelectorAll(`#${grupo.toLowerCase()} .pagination-custom a`).forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pageUrl = new URL(this.href);
+            const page = pageUrl.searchParams.get('page');
+            cargarPaginaAtletas(grupo, page);
+        });
+    });
+}
+
+function cargarPaginaAtletas(grupo, page) {
+    const tabContent = document.querySelector(`#${grupo.toLowerCase()}`);
+    const url = "{{ route('atletas.byGrupo', ['grupo' => 'GRUPO_PLACEHOLDER']) }}".replace('GRUPO_PLACEHOLDER', grupo) + `?page=${page}`;
+    
+    // Mostrar loader solo en la grid
+    const grid = tabContent.querySelector('.atletas-grid');
+    if (grid) {
+        grid.innerHTML = `
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2">Cargando página...</p>
+            </div>
+        `;
+    }
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            // Reemplazar solo la parte de la lista de atletas
+            const grid = tabContent.querySelector('.atletas-grid');
+            if (grid) {
+                grid.innerHTML = data.html;
+                
+                // Reconfigurar paginación
+                configurarPaginacion(grupo);
+                
+                // Reinicializar zoom
+                initImageZoom();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = `
+                Error al cargar página: ${error.message}
+                <button onclick="cargarPaginaAtletas('${grupo}', ${page})" class="btn btn-sm btn-primary ms-2">Reintentar</button>
+            `;
+            
+            const gridContainer = tabContent.querySelector('.atletas-grid-container');
+            if (gridContainer) {
+                gridContainer.parentNode.insertBefore(errorDiv, gridContainer.nextSibling);
+            }
+        });
+}
+
+function initImageZoom() {
+    document.querySelectorAll('.atleta-card').forEach(card => {
         const foto = card.querySelector('.atleta-foto');
         if (!foto) return;
         
-        const overlay = document.createElement('div');
-        overlay.className = 'imagen-overlay';
-        const imgAmpliada = document.createElement('img');
-        imgAmpliada.src = foto.src;
-        overlay.appendChild(imgAmpliada);
-        card.appendChild(overlay);
+        // Crear overlay si no existe
+        if (!card.querySelector('.imagen-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'imagen-overlay';
+            const imgAmpliada = document.createElement('img');
+            imgAmpliada.src = foto.src;
+            overlay.appendChild(imgAmpliada);
+            card.appendChild(overlay);
 
-        foto.addEventListener('click', function(e) {
-            e.stopPropagation();
-            overlay.classList.add('mostrar');
-        });
+            // Eventos para mostrar/ocultar
+            foto.addEventListener('click', function(e) {
+                e.stopPropagation();
+                overlay.classList.add('mostrar');
+            });
 
-        overlay.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.remove('mostrar');
-        });
+            overlay.addEventListener('click', function(e) {
+                e.stopPropagation();
+                overlay.classList.remove('mostrar');
+            });
+        }
     });
 
+    // Cerrar al hacer clic fuera
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.imagen-overlay') && !e.target.closest('.atleta-foto')) {
             document.querySelectorAll('.imagen-overlay').forEach(overlay => {
@@ -187,6 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-});
+}
 </script>
 @endsection
