@@ -3,14 +3,6 @@
 @section('title', 'Editar Atleta')
 
 @section('content')
-<!--- 
-    Vista para editar atletas existentes
-    Funcionalidades:
-    - Formulario pre-llenado con datos actuales
-    - Mantener foto existente o actualizarla
-    - Validación en tiempo real
-    - Vista previa de foto
---->
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -22,11 +14,12 @@
                 </div>
                 
                 <div class="card-body">
+                    <!-- Formulario para editar atleta -->
                     <form action="{{ route('atletas.update', $atleta->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
-                        <!--- Sección de información básica --->
+                        <!-- Sección de información básica -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label">Nombre*</label>
@@ -47,13 +40,15 @@
                             </div>
                         </div>
 
-                        <!--- Edad y grupo --->
+                        <!-- Sección de fecha de nacimiento y grupo -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="edad" class="form-label">Edad*</label>
-                                <input type="number" class="form-control @error('edad') is-invalid @enderror" 
-                                       id="edad" name="edad" value="{{ old('edad', $atleta->edad) }}" min="5" max="99" required>
-                                @error('edad')
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento*</label>
+                                <input type="date" class="form-control @error('fecha_nacimiento') is-invalid @enderror" 
+                                       id="fecha_nacimiento" name="fecha_nacimiento" 
+                                       value="{{ old('fecha_nacimiento', $atleta->fecha_nacimiento) }}" 
+                                       max="{{ now()->toDateString() }}" required>
+                                @error('fecha_nacimiento')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -75,7 +70,7 @@
                             </div>
                         </div>
 
-                        <!--- Foto y becado --->
+                        <!-- Sección de becado y foto -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Becado</label>
@@ -97,7 +92,7 @@
                             </div>
                         </div>
 
-                        <!--- Vista previa de foto --->
+                        <!-- Vista previa de foto -->
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div class="preview-container text-center mt-3">
@@ -117,7 +112,7 @@
                             </div>
                         </div>
 
-                        <!--- Botones de acción --->
+                        <!-- Botones de acción -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ route('atletas.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Cancelar
@@ -133,7 +128,7 @@
     </div>
 </div>
 
-<!--- Script para vista previa de foto --->
+<!-- Script para vista previa de foto -->
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {

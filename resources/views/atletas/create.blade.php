@@ -14,9 +14,11 @@
                 </div>
                 
                 <div class="card-body">
+                    <!-- Formulario para crear nuevo atleta -->
                     <form action="{{ route('atletas.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
+                        <!-- Sección de nombre y apellido -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label">Nombre</label>
@@ -37,7 +39,7 @@
                             </div>
                         </div>
 
-                        {{-- Fecha de nacimiento y grupo --}}
+                        <!-- Sección de fecha de nacimiento y grupo -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
@@ -67,7 +69,7 @@
                             </div>
                         </div>
 
-                        {{-- Foto y becado --}}
+                        <!-- Sección de foto y becado -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="foto" class="form-label">Foto del Atleta</label>
@@ -91,7 +93,7 @@
                             </div>
                         </div>
 
-                        {{-- Vista previa --}}
+                        <!-- Vista previa de la foto -->
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div class="preview-container text-center mt-3">
@@ -105,6 +107,7 @@
                             </div>
                         </div>
 
+                        <!-- Botones de acción -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ route('atletas.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Cancelar
@@ -120,6 +123,7 @@
     </div>
 </div>
 
+<!-- Script para vista previa de foto -->
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {

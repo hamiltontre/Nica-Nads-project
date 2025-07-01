@@ -12,10 +12,12 @@
         </div>
         
         <div class="card-body">
+            <!-- Formulario para crear nueva factura -->
             <form action="{{ route('facturas.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="row g-3">
+                    <!-- Campo para número de factura -->
                     <div class="col-md-6">
                         <label for="numero_factura" class="form-label">Número de Factura</label>
                         <input type="text" class="form-control @error('numero_factura') is-invalid @enderror" 
@@ -25,6 +27,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Campo para monto con selector de moneda -->
                     <div class="col-md-6">
                         <label for="monto" class="form-label">Monto</label>
                         <div class="input-group">
@@ -44,6 +47,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Campo para lugar -->
                     <div class="col-md-6">
                         <label for="lugar" class="form-label">Lugar</label>
                         <input type="text" class="form-control @error('lugar') is-invalid @enderror" 
@@ -53,6 +57,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Campo para fecha -->
                     <div class="col-md-6">
                         <label for="fecha" class="form-label">Fecha</label>
                         <input type="date" class="form-control @error('fecha') is-invalid @enderror" 
@@ -62,6 +67,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Campo para descripción -->
                     <div class="col-md-12">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <textarea class="form-control @error('descripcion') is-invalid @enderror" 
@@ -71,6 +77,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Campo para imagen de factura -->
                     <div class="col-md-12">
                         <label for="imagen" class="form-label">Imagen de la Factura</label>
                         <input type="file" class="form-control @error('imagen') is-invalid @enderror" 
@@ -80,6 +87,7 @@
                         @enderror
                     </div>
                     
+                    <!-- Botones de acción -->
                     <div class="col-md-12 mt-4">
                         <button type="submit" class="btn btn-primary me-2">
                             <i class="bi bi-save"></i> Guardar Factura
