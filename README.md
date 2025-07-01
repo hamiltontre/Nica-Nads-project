@@ -1,17 +1,4 @@
-*/Nads Web
-Visión
-
-Versión 0.1
-
-
-*/Historial de Revisiones
-
-Fecha	Versión	Descripción	Autor
-08/06/2025	0.1	Inicio del proyecto	Hamilton Treminio
-			
-Visión
-
-*/Introducción
+Versio
 
 Propósito
 NADS Web es una solución digital diseñada para optimizar la gestión de asistencias y facturas en la organización Nica Nadadores, eliminando procesos manuales y garantizando acceso remoto seguro para administradores y dueños.
@@ -23,15 +10,13 @@ Acceso: Contendra tres perfiles administrativos .
 
 
 
-![Pag-1](https://github.com/user-attachments/assets/6a20f285-1ebe-4c45-89fc-5b0677ca939a)
-
-![pag-2](https://github.com/user-attachments/assets/0f78f4c5-253f-4c14-80c9-15f8bb582b01)
+![W1](https://github.com/user-attachments/assets/aa431732-19b8-4988-8a31-4bf01c5057b3)
 
 
-![pag-3](https://github.com/user-attachments/assets/186f5c8c-f62c-410f-ac2e-63c5f2373dad)
+![W2](https://github.com/user-attachments/assets/9c5dcb7d-08f9-4023-86a5-f39610c405e6)
+
+![W3](https://github.com/user-attachments/assets/bcb04492-bc1b-4ab2-8d46-c4ce8fbde272)
 
 
-![pag-4](https://github.com/user-attachments/assets/5a4b2fd4-94da-49bb-bf05-95416e16221b)
-
-![pag-5](https://github.com/user-attachments/assets/7399615d-819a-42d0-a119-f1a6ce96c876)
+![W4](https://github.com/user-attachments/assets/6e3cc20d-0193-4ee2-9bcd-8bf994db3f3d)
 
