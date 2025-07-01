@@ -20,30 +20,19 @@ class Atleta extends Model
         'user_id'
     ];
 
-    // Relación con asistencias
+    protected $casts = [
+        'fecha_nacimiento' => 'date',
+        'becado' => 'boolean'
+    ];
+
     public function asistencias()
     {
         return $this->hasMany(Asistencia::class);
     }
 
-    // Relación con el usuario creador
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    // Método para calcular asistencia mensual
-    public function calcularAsistenciaMes($mes, $año)
-    {
-        return $this->asistencias()
-            ->whereMonth('fecha', $mes)
-            ->whereYear('fecha', $año)
-            ->where('estado', 'asistio')
-            ->count();
-    }
-
+    // Accesor para calcular la edad
     public function getEdadAttribute()
-{
-    return Carbon::parse($this->fecha_nacimiento)->age;
-}
+    {
+        return Carbon::parse($this->fecha_nacimiento)->age;
+    }
 }
