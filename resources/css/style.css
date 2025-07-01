@@ -27,7 +27,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Efectos Visuales */
+/* Efectos Visuales del Modern Layout*/
 .image-gradient {
     position: absolute;
     top: 0;
@@ -51,12 +51,16 @@ body {
 
 /* Header */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 1rem 5rem;
     z-index: 999;
     position: relative;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .logo {
@@ -64,12 +68,27 @@ header {
     font-weight: 300;
     margin: 0;
     color: white;
+    display: flex;
+    align-items: center;
+}
+
+.logo span {
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
 }
 
 .nav-list {
     display: flex;
     gap: 3rem;
     list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
 }
 
 .nav-list a {
@@ -85,15 +104,92 @@ header {
     color: var(--accent-color);
 }
 
-/* Contenido Principal */
-.main-container {
+/* Profile Menu Styles */
+.profile-container {
     position: relative;
-    min-height: 100vh;
+    margin-left: 3rem;
 }
+
+.profile-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #4a6bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.profile-email {
+    font-size: 0.9rem;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+}
+
+.profile-arrow {
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+    color: white;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #2c3e50;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-width: 220px;
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-dropdown .dropdown-item {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    background: none;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.profile-dropdown .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
+}
+
 
 .content-wrapper {
     padding: 2rem 5rem;
-    color: var(--text-color); /* Added to ensure text visibility */
+    color: var(--text-color);
 }
 
 /* Tabla de Asistencias */
@@ -108,14 +204,14 @@ header {
     background-color: rgba(30, 30, 30, 0.8);
     border-collapse: separate;
     border-spacing: 0;
-    color: var(--text-color); /* Added to ensure text visibility */
+    color: var(--text-color);
 }
 
 .table th, .table td {
     padding: 0.75rem;
     vertical-align: middle;
     border: 1px solid #333;
-    color: var(--text-color); /* Added to ensure text visibility */
+    color: var(--text-color);
 }
 
 .table thead th {
@@ -236,52 +332,7 @@ header {
     padding: 1rem 1.5rem;
 }
 
-/* Íconos de asistencia */
-.asistencia-icon {
-    font-size: 1.25rem;
-}
 
-.presente {
-    color: var(--success);
-}
-
-.ausente {
-    color: var(--danger);
-}
-
-.libre {
-    color: #6c757d;
-}
-
-/* Radio buttons styles - Fixed */
-.asistencia-td {
-    position: relative;
-}
-
-.asistencia-td .form-check {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.asistencia-td .form-check-input {
-    width: 1.2em;
-    height: 1.2em;
-    margin: 0;
-    position: static;
-    opacity: 1;
-    z-index: 1;
-}
-
-.asistencia-td .form-check-label {
-    display: none;
-}
-
-/* Hover effect for cells */
-.asistencia-td:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-}
 
 /* Form controls visibility */
 .form-control, .form-select, .form-check-input {
@@ -310,6 +361,10 @@ header {
     .nav-list {
         gap: 1.5rem;
     }
+    
+    .profile-container {
+        margin-left: 1.5rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -326,6 +381,21 @@ header {
         left: auto;
         right: auto;
         box-shadow: none;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .navbar {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .profile-email {
+        display: none;
     }
 }
 
@@ -360,33 +430,107 @@ input[type="radio"]:checked {
     color: #000 !important;
 }
 
-/* Estilos para los radios de asistencia */
-.asistencia-td .form-check {
-    padding: 0;
+
+/* Estilos específicos para facturas */
+.factura-card {
+    background-color: #ffffff;
+    color: #212529;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.factura-card .card-header {
+    background-color: #2c3e50;
+    color: white;
+}
+
+.factura-card .text-dark {
+    color: #212529 !important;
+}
+
+.factura-card .card-body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 2rem;
+}
+
+.factura-card .border-bottom {
+    border-color: #e0e0e0 !important;
+}
+
+.factura-card .card-header {
+    padding: 1.25rem 2rem;
+    border-bottom: none;
+}
+
+/* Asegurar contraste máximo */
+.factura-card p,
+.factura-card h5 {
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+/* ESTILOS NUEVOS PARA LA TABLA DE FACTURAS */
+.table-responsive .table {
+    background-color: white !important;
+}
+
+.table-responsive .table td,
+.table-responsive .table th {
+    color: #000000 !important; /* Texto negro */
+}
+
+.table-responsive .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+.table-responsive .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.table-responsive .table-dark {
+    background-color: #2c3e50 !important;
+}
+
+.table-responsive .table-dark th {
+    color: white !important; /* Encabezados blancos */
+    border-color: #3a5169 !important;
+}
+
+.asistencia-cell {
+    position: relative;
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.asistencia-cell .form-check {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
     margin: 0;
-    min-height: auto;
 }
 
-.asistencia-td .form-check-input {
-    width: 1.2em;
-    height: 1.2em;
-    margin: 0 2px;
-    position: static;
-    opacity: 1;
-    z-index: 1;
+.asistencia-cell .form-check-input {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
-.asistencia-td .form-check-input:checked {
-    background-color: var(--success);
-    border-color: var(--success);
+.asistencia-cell i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
-.asistencia-td .form-check-input.ausente-radio:checked {
-    background-color: var(--danger);
-    border-color: var(--danger);
-}
 
-.asistencia-td .form-check-input.libre-radio:checked {
-    background-color: var(--warning);
-    border-color: var(--warning);
-}
+
+
+
+
+
+

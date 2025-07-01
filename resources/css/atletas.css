@@ -1,13 +1,24 @@
-/* Estilos mejorados para tarjetas de atletas */
-.atleta-card {
-    min-height: 320px;
+/* Sistema de grid para los atletas */
+.atletas-grid-container {
     width: 100%;
-    /* Opciones de ancho progresivas (descomentar la deseada) */
-    /* max-width: 400px;  Opción estándar */
-    max-width: 350px; /* Opción ancha (recomendada) */
-    /* max-width: 450px;  Opción extra ancha */
-    /* max-width: 480px;  Opción máxima */
-    margin: 0 auto;
+    overflow-x: auto;
+}
+
+.atletas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 0.5rem;
+}
+
+.atleta-card-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.atleta-card {
+    position: relative;
+    min-height: 320px;
     transition: all 0.3s ease;
     background: #2c3e50;
     color: white;
@@ -15,37 +26,8 @@
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    position: relative;
-}
-
-/* Overlay para la imagen ampliada */
-.imagen-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.imagen-overlay.mostrar {
-    opacity: 1;
-    visibility: visible;
-}
-
-.imagen-overlay img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 4px;
-    object-fit: contain;
-    box-shadow: 0 5px 30px rgba(0,0,0,0.6);
+    flex-direction: column;
 }
 
 .atleta-card:hover {
@@ -53,7 +35,8 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
-.img-hover-container {
+.img-container {
+    position: relative;
     width: 100px;
     height: 100px;
     margin-right: 15px;
@@ -64,16 +47,18 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .atleta-foto {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
     transition: all 0.3s ease;
-    border-radius: 50%;
-    image-rendering: crisp-edges;
+    position: relative;
+    cursor: pointer;
+    transform: scale(1.8);
+    border-radius: 10px;
 }
 
 .foto-placeholder {
@@ -89,6 +74,7 @@
 
 .card-body {
     padding: 1.5rem;
+    flex-grow: 1;
 }
 
 .card-title {
@@ -97,23 +83,10 @@
     color: white;
 }
 
-/* Ajustes para el texto de fecha/edad */
 .text-muted.small {
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: clip;
-    display: inline-block;
-    max-width: 100%;
     color: #ecf0f1 !important;
     opacity: 0.9;
     font-size: 0.9rem;
-    padding-right: 10px;
-}
-
-/* Ajustes para el contenedor de información */
-.flex-grow-1 {
-    min-width: 200px;
-    overflow: hidden;
 }
 
 .stats-container {
@@ -134,46 +107,103 @@
     display: block;
 }
 
-/* Asistencia en verde */
-.stat-item:nth-child(2) .stat-value {
+.stat-item:nth-child(1) .stat-value {
     color: #2ecc71;
 }
 
-/* Inasistencias en rojo */
-.stat-item:nth-child(3) .stat-value {
+.stat-item:nth-child(2) .stat-value {
     color: #e74c3c;
 }
 
-/* Promedio en amarillo */
-.stat-item:nth-child(1) .stat-value {
+.stat-item:nth-child(3) .stat-value {
     color: #f39c12;
 }
+/* Estilos para la paginación */
+.pagination-custom {
+    margin-top: 2rem;
+}
 
-/* Colores específicos para badges */
-.badge-federados { background: #3498db; }
-.badge-novatos { background: #2ecc71; }
-.badge-juniors { background: #f39c12; color: #212529; }
-.badge-otros { background: #9b59b6; }
+.pagination-custom .page-item {
+    margin: 0 0.25rem;
+}
 
-/* Efecto hover para foto */
-.atleta-foto:hover {
-    transform: scale(1.1);
-    cursor: pointer;
+.pagination-custom .page-link {
+    color: #2c3e50;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.pagination-custom .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.pagination-custom .page-item.active .page-link {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    color: white;
+}
+
+.pagination-custom .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Estilos para los iconos */
+.pagination-custom .bi {
+    font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding-left: 12px;
-        padding-right: 12px;
+    .atletas-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
-    
-    .atleta-card {
-        min-height: 300px;
-        max-width: 100%;
+
+    .img-container {
+        width: 80px;
+        height: 80px;
     }
-    
-    .text-muted.small {
-        white-space: normal;
-        overflow: visible;
+}
+
+@media (max-width: 576px) {
+    .atletas-grid {
+        grid-template-columns: 1fr;
     }
+}
+
+.imagen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.imagen-overlay.mostrar {
+    opacity: 1;
+    visibility: visible;
+}
+
+.imagen-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 4px;
+    object-fit: contain;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.6);
 }
