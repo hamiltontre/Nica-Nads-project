@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Factura;
@@ -8,11 +7,12 @@ use Illuminate\Support\Facades\Storage;
 
 class FacturaController extends Controller
 {
+    // Muestra listado de facturas con filtros
     public function index(Request $request)
     {
         $query = Factura::query();
         
-        // Filtros
+        // Aplica filtros según parámetros recibidos
         if ($request->filled('monto_min')) {
             $query->where('monto', '>=', $request->monto_min);
         }
@@ -33,23 +33,27 @@ class FacturaController extends Controller
             $query->where('lugar', 'like', '%'.$request->lugar.'%');
         }
         
-        // Nuevo filtro por símbolo de moneda
+        // Filtro por símbolo de moneda
         if ($request->filled('simbolo_moneda')) {
             $query->where('simbolo_moneda', $request->simbolo_moneda);
         }
         
+        // Pagina los resultados
         $facturas = $query->orderBy('fecha', 'desc')->paginate(15);
         
         return view('facturas.index', compact('facturas'));
     }
 
+    // Muestra formulario para crear nueva factura
     public function create()
     {
         return view('facturas.create');
     }
 
+    // Almacena una nueva factura
     public function store(Request $request)
     {
+        // Valida los datos del formulario
         $validated = $request->validate([
             'numero_factura' => 'required|unique:facturas',
             'monto' => 'required|numeric|min:0',
@@ -60,9 +64,10 @@ class FacturaController extends Controller
             'imagen' => 'required|image|max:2048'
         ]);
         
-        // Guardar la imagen
+        // Guarda la imagen
         $path = $request->file('imagen')->store('facturas', 'public');
         
+        // Crea la factura
         $factura = Factura::create([
             'numero_factura' => $validated['numero_factura'],
             'monto' => $validated['monto'],
@@ -77,18 +82,22 @@ class FacturaController extends Controller
             ->with('success', 'Factura registrada correctamente');
     }
 
+    // Muestra los detalles de una factura
     public function show(Factura $factura)
     {
         return view('facturas.show', compact('factura'));
     }
 
+    // Muestra formulario para editar factura
     public function edit(Factura $factura)
     {
         return view('facturas.edit', compact('factura'));
     }
 
+    // Actualiza una factura existente
     public function update(Request $request, Factura $factura)
     {
+        // Valida los datos del formulario
         $validated = $request->validate([
             'numero_factura' => 'required|unique:facturas,numero_factura,'.$factura->id,
             'monto' => 'required|numeric|min:0',
@@ -108,26 +117,30 @@ class FacturaController extends Controller
             'fecha' => $validated['fecha']
         ];
         
+        // Procesa nueva imagen si se subió
         if ($request->hasFile('imagen')) {
-            // Eliminar imagen anterior
+            // Elimina imagen anterior
             Storage::disk('public')->delete($factura->imagen_path);
             
-            // Guardar nueva imagen
+            // Guarda nueva imagen
             $path = $request->file('imagen')->store('facturas', 'public');
             $data['imagen_path'] = $path;
         }
         
+        // Actualiza la factura
         $factura->update($data);
         
         return redirect()->route('facturas.index')
             ->with('success', 'Factura actualizada correctamente');
     }
 
+    // Elimina una factura
     public function destroy(Factura $factura)
     {
-        // Eliminar la imagen
+        // Elimina la imagen asociada
         Storage::disk('public')->delete($factura->imagen_path);
         
+        // Elimina la factura
         $factura->delete();
         
         return redirect()->route('facturas.index')

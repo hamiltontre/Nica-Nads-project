@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Atleta;
@@ -10,27 +9,45 @@ use Carbon\Carbon;
 
 class AsistenciaController extends Controller
 {
+    // Constantes para grupos y turnos disponibles
     const GRUPOS_DISPONIBLES = ['Federados', 'Novatos', 'Juniors', 'Principiantes'];
     const TURNOS_DISPONIBLES = ['mañana', 'tarde'];
 
     // Muestra el registro de asistencias del mes actual
-    public function index(Request $request)
-    {
-        $grupoSeleccionado = $this->validarGrupo($request->input('grupo', 'Federados'));
-        $turno = $this->validarTurno($grupoSeleccionado, $request->input('turno', 'mañana'));
+  public function index(Request $request)
+{
+    // Valida grupo y turno seleccionados
+    $grupoSeleccionado = $this->validarGrupo($request->input('grupo', 'Federados'));
+    $turno = $this->validarTurno($grupoSeleccionado, $request->input('turno', 'mañana'));
 
-        $fechaInicio = now()->startOfMonth();
-        $fechaFin = now()->endOfMonth();
+    // Establece rango de fechas (mes actual)
+    $fechaInicio = now()->startOfMonth();
+    $fechaFin = now()->endOfMonth();
+    
+    $diasMes = $this->generarDiasMes($fechaInicio, $fechaFin, $grupoSeleccionado);
+    
+    // Calcular días hábiles totales
+    $diasHabiles = collect($diasMes)->filter(function($dia) use ($grupoSeleccionado) {
+        if ($dia['es_domingo']) return false;
         
-            return view('asistencias.index', [
-                'grupos' => self::GRUPOS_DISPONIBLES,
-                'grupoSeleccionado' => $grupoSeleccionado,
-                'turno' => $turno,
-                'diasMes' => $this->generarDiasMes($fechaInicio, $fechaFin),
-                'atletas' => $this->obtenerAtletas($grupoSeleccionado),
-                'asistencias' => $this->obtenerAsistencias($fechaInicio, $fechaFin, $grupoSeleccionado)
-            ]);
+        if (in_array($grupoSeleccionado, ['Juniors', 'Principiantes'])) {
+            // Para Juniors y Principiantes: solo Martes y Jueves son hábiles
+            return in_array($dia['dia_semana_numero'], [2, 4, 6]); // 2=Martes, 4=Jueves, 6=Sabado
         }
+        
+        return true; // Para otros grupos todos los días excepto domingo son hábiles
+    })->count();
+
+    return view('asistencias.index', [
+        'grupos' => self::GRUPOS_DISPONIBLES,
+        'grupoSeleccionado' => $grupoSeleccionado,
+        'turno' => $turno,
+        'diasMes' => $diasMes,
+        'atletas' => $this->obtenerAtletas($grupoSeleccionado),
+        'asistencias' => $this->obtenerAsistencias($fechaInicio, $fechaFin, $grupoSeleccionado),
+        'diasHabiles' => $diasHabiles
+    ]);
+}
 
     // Valida y retorna el grupo seleccionado
     protected function validarGrupo($grupo)
@@ -38,7 +55,7 @@ class AsistenciaController extends Controller
         return in_array($grupo, self::GRUPOS_DISPONIBLES) ? $grupo : 'Federados';
     }
 
-    /** Valida y retorna el turno seleccionado **/
+    // Valida y retorna el turno seleccionado
     protected function validarTurno($grupo, $turno)
     {
         return ($grupo === 'Federados' && in_array($turno, self::TURNOS_DISPONIBLES)) 
@@ -47,23 +64,34 @@ class AsistenciaController extends Controller
     }
 
     // Genera array con los días del mes
-    protected function generarDiasMes($fechaInicio, $fechaFin)
-    {
-        $dias = [];
-        $currentDay = $fechaInicio->copy();
+   protected function generarDiasMes($fechaInicio, $fechaFin, $grupoSeleccionado = null)
+{
+    $dias = [];
+    $currentDay = $fechaInicio->copy();
+    
+    while ($currentDay <= $fechaFin) {
+        $esDomingo = $currentDay->isSunday();
+        $esDiaInhabil = false;
         
-        while ($currentDay <= $fechaFin) {
-            $dias[] = [
-                'fecha' => $currentDay->format('Y-m-d'),
-                'dia' => $currentDay->day,
-                'dia_semana' => $currentDay->shortDayName,
-                'es_domingo' => $currentDay->isSunday(),
-            ];
-            $currentDay->addDay();
+        if (in_array($grupoSeleccionado, ['Juniors', 'Principiantes'])) {
+            $esDiaInhabil = in_array($currentDay->dayOfWeek, [1, 3, 5]); // Lunes, Miércoles, Viernes
         }
         
-        return $dias;
+        $dias[] = [
+            'fecha' => $currentDay->format('Y-m-d'),
+            'dia' => $currentDay->day,
+            'dia_semana' => $currentDay->shortDayName,
+            'es_domingo' => $esDomingo,
+            'es_dia_inhabil' => $esDiaInhabil,
+            'dia_semana_numero' => $currentDay->dayOfWeek
+        ];
+        
+        $currentDay->addDay();
     }
+    
+    return $dias;
+}
+
 
     // Obtiene atletas filtrados por grupo
     protected function obtenerAtletas($grupo)
@@ -73,28 +101,35 @@ class AsistenciaController extends Controller
                    ->get();
     }
 
-    /* Obtiene asistencias del rango de fechas */
-    protected function obtenerAsistencias($fechaInicio, $fechaFin, $grupo)
-    {
-        $turnos = ($grupo === 'Federados') ? self::TURNOS_DISPONIBLES : ['tarde'];
-        
-        return Asistencia::whereBetween('fecha', [$fechaInicio, $fechaFin])
-                       ->whereIn('turno', $turnos)
-                       ->get()
-                       ->groupBy(['atleta_id', 'fecha', 'turno']);
-    }
+    // Obtiene asistencias del rango de fechas
+   protected function obtenerAsistencias($fechaInicio, $fechaFin, $grupo)
+{
+    $turnos = ($grupo === 'Federados') ? self::TURNOS_DISPONIBLES : ['tarde'];
+    
+    return Asistencia::whereBetween('fecha', [
+            $fechaInicio->format('Y-m-d'), 
+            $fechaFin->format('Y-m-d')
+        ])
+        ->whereIn('turno', $turnos)
+        ->get()
+        ->groupBy(['atleta_id', function($item) {
+            return Carbon::parse($item->fecha)->format('Y-m-d');
+        }, 'turno']);
+}
 
     // Guarda las asistencias mediante AJAX
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'asistencias' => 'required|array',
-            'asistencias.*.atleta_id' => 'required|exists:atletas,id',
-            'asistencias.*.fecha' => 'required|date',
-            'asistencias.*.turno' => 'required|in:mañana,tarde',
-            'asistencias.*.estado' => 'required|in:presente,ausente,libre'
-        ]);
+        // Valida los datos recibidos
+       $validated = $request->validate([
+    'asistencias' => 'required|array',
+    'asistencias.*.atleta_id' => 'required|exists:atletas,id',
+    'asistencias.*.fecha' => 'required|date',
+    'asistencias.*.turno' => 'required|in:mañana,tarde',
+    'asistencias.*.estado' => 'required|in:presente,ausente,justificado,libre'
+]);
 
+        // Transacción para asegurar integridad de datos
         DB::beginTransaction();
         try {
             foreach ($validated['asistencias'] as $asistencia) {
@@ -122,48 +157,50 @@ class AsistenciaController extends Controller
         }
     }
 
-    /** Muestra el histórico de asistencias **/
-   // Agrega este método al controlador
-public function historico(Request $request)
-{
-    $grupoSeleccionado = $this->validarGrupo($request->input('grupo', 'Federados'));
-    $turno = $this->validarTurno($grupoSeleccionado, $request->input('turno', 'mañana'));
-    $mes = $request->input('mes', now()->month);
-    $anio = $request->input('anio', now()->year);
+    // Muestra el histórico de asistencias
+    public function historico(Request $request)
+    {
+        // Valida grupo, turno, mes y año
+        $grupoSeleccionado = $this->validarGrupo($request->input('grupo', 'Federados'));
+        $turno = $this->validarTurno($grupoSeleccionado, $request->input('turno', 'mañana'));
+        $mes = $request->input('mes', now()->month);
+        $anio = $request->input('anio', now()->year);
 
-    $fechaInicio = Carbon::create($anio, $mes, 1)->startOfMonth();
-    $fechaFin = $fechaInicio->copy()->endOfMonth();
+        // Establece rango de fechas según mes y año seleccionados
+        $fechaInicio = Carbon::create($anio, $mes, 1)->startOfMonth();
+        $fechaFin = $fechaInicio->copy()->endOfMonth();
 
-    return view('asistencias.historicos', [
-        'grupos' => self::GRUPOS_DISPONIBLES,
-        'grupoSeleccionado' => $grupoSeleccionado,
-        'turno' => $turno,
-        'mes' => $mes,
-        'anio' => $anio,
-        'meses' => $this->getMeses(),
-        'anios' => range(now()->year, now()->year - 5),
-        'diasMes' => $this->generarDiasMes($fechaInicio, $fechaFin),
-        'atletas' => $this->obtenerAtletas($grupoSeleccionado),
-        'asistencias' => $this->obtenerAsistencias($fechaInicio, $fechaFin, $grupoSeleccionado)
-    ]);
-}
+        // Retorna vista con datos históricos
+        return view('asistencias.historicos', [
+            'grupos' => self::GRUPOS_DISPONIBLES,
+            'grupoSeleccionado' => $grupoSeleccionado,
+            'turno' => $turno,
+            'mes' => $mes,
+            'anio' => $anio,
+            'meses' => $this->getMeses(),
+            'anios' => range(now()->year, now()->year - 5),
+            'diasMes' => $this->generarDiasMes($fechaInicio, $fechaFin),
+            'atletas' => $this->obtenerAtletas($grupoSeleccionado),
+            'asistencias' => $this->obtenerAsistencias($fechaInicio, $fechaFin, $grupoSeleccionado)
+        ]);
+    }
 
-protected function getMeses()
-{
-    return [
-        1 => 'Enero',
-        2 => 'Febrero',
-        3 => 'Marzo',
-        4 => 'Abril',
-        5 => 'Mayo',
-        6 => 'Junio',
-        7 => 'Julio',
-        8 => 'Agosto',
-        9 => 'Septiembre',
-        10 => 'Octubre',
-        11 => 'Noviembre',
-        12 => 'Diciembre'
-    ];
-}
-
+    // Retorna array con nombres de los meses
+    protected function getMeses()
+    {
+        return [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+    }
 }
